@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, DEMO_MODE } from "@/lib/api";
 import { saveLogin, ROLE_HOME } from "@/lib/auth";
 import { Alert, Button, Field, inputCls } from "@/components/ui";
+import { DemoBadge, ResetDemoButton } from "@/components/DemoMode";
 
 const DEMO_ACCOUNTS = [
   { role: "Admin", email: "admin@school.com", password: "Admin123!" },
@@ -30,9 +31,11 @@ export default function LoginPage() {
       setError(
         err instanceof ApiError
           ? err.message
-          : "Login failed. Make sure the API is running at " +
-              (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5224") +
-              "."
+          : DEMO_MODE
+            ? "Login failed. Try one of the demo accounts below."
+            : "Login failed. Make sure the API is running at " +
+                (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5224") +
+                "."
       );
     } finally {
       setBusy(false);
@@ -54,6 +57,9 @@ export default function LoginPage() {
           <p className="mt-1 text-sm text-slate-500">
             Sign in to your dashboard
           </p>
+          <div className="mt-2 flex justify-center">
+            <DemoBadge detail />
+          </div>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -92,7 +98,9 @@ export default function LoginPage() {
             Try a demo account
           </h2>
           <p className="mt-1 text-xs text-slate-500">
-            Seeded in the backend database for evaluation.
+            {DEMO_MODE
+              ? "Seeded in your browser for this demo — no backend needed."
+              : "Seeded in the backend database for evaluation."}
           </p>
           <div className="mt-3 grid grid-cols-3 gap-2">
             {DEMO_ACCOUNTS.map((account) => (
@@ -116,6 +124,9 @@ export default function LoginPage() {
               </div>
             ))}
           </dl>
+          <div className="mt-4 flex justify-center">
+            <ResetDemoButton />
+          </div>
         </div>
       </div>
     </main>
