@@ -7,7 +7,7 @@ A role-based Assignment & Submission Management System for schools and colleges.
 ![Docker](https://img.shields.io/badge/Docker-PostgreSQL-2496ED)
 ![JWT](https://img.shields.io/badge/Auth-JWT-black)
 
-> **Status:** the backend API is complete and runnable (see [Setup](#setup)). The Next.js frontend is planned — the `frontend/` folder is currently empty in this repo, so the API is used via Swagger for now.
+> **Status:** the backend API and the Next.js frontend are both in this repo. Run them locally (see [Setup](#setup)) — the API at http://localhost:5224, the frontend at http://localhost:3000. The API is not deployed anywhere yet, so a deployed frontend needs a live API URL via `NEXT_PUBLIC_API_URL` before login works.
 
 ## Overview
 
@@ -64,7 +64,7 @@ The backend uses JWT authentication and strict role-based authorization, with bu
 
 | Layer | Technology |
 |---|---|
-| Frontend (planned) | Next.js, React, TypeScript (App Router), Tailwind CSS |
+| Frontend | Next.js, React, TypeScript (App Router), Tailwind CSS |
 | Backend | ASP.NET Core Web API |
 | Language | C# (.NET 10) |
 | ORM | Entity Framework Core |
@@ -86,7 +86,12 @@ assignment-management/
 │   │   ├── Services/             # AuthService, AssignmentService
 │   │   └── Program.cs
 │   └── AssignmentApi.Tests/      # xUnit tests
-├── frontend/                     # Planned — Next.js app (not in the repo yet)
+├── frontend/
+│   ├── web/                      # Next.js app (App Router, TypeScript, Tailwind)
+│   │   ├── app/                  # login, admin, teacher, student
+│   │   ├── components/
+│   │   └── lib/
+│   └── assignment-ui             # leftover broken submodule pointer from the initial commit — ignore it
 ├── docker-compose.yml            # PostgreSQL 16 on port 5433
 └── README.md
 ```
@@ -95,7 +100,7 @@ assignment-management/
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download) (the API targets `net10.0`)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for PostgreSQL)
-- Node.js 18+ and npm — only needed once the frontend lands
+- Node.js 18+ and npm — for the frontend
 
 Verify:
 
@@ -147,9 +152,18 @@ The API will be available at:
 
 On startup, EF Core initializes the database (`EnsureCreated`) and the seeder creates the demo users and sample data.
 
-### Frontend (planned)
+### Step 4: Start the frontend
 
-The Next.js frontend (`frontend/assignment-ui`, App Router, TypeScript, Tailwind CSS) is planned and not in the repo yet. Until then, use the Swagger UI above to try the API.
+In a new terminal:
+
+```bash
+cd frontend/web
+cp .env.example .env.local   # already contains NEXT_PUBLIC_API_URL=http://localhost:5224
+npm install
+npm run dev
+```
+
+The frontend will be available at http://localhost:3000. Log in with any of the demo accounts above. When the API is deployed, set `NEXT_PUBLIC_API_URL` in `.env.local` (or on Vercel) to the live API URL.
 
 ## Running Unit Tests
 
@@ -274,7 +288,7 @@ Backend configuration lives in:
 - `backend/AssignmentApi/appsettings.json`
 - `backend/AssignmentApi/appsettings.Development.json`
 
-The frontend will provide `frontend/assignment-ui/.env.example` (copy to `.env.local`, e.g. `NEXT_PUBLIC_API_URL=http://localhost:5224`) once it lands.
+The frontend provides `frontend/web/.env.example` (copy to `.env.local`, e.g. `NEXT_PUBLIC_API_URL=http://localhost:5224`).
 
 Do not commit real production secrets. Production secrets, JWT signing keys, and database credentials should come from secure environment-specific configuration.
 
@@ -328,8 +342,8 @@ docker compose up -d
 docker compose ps
 docker compose down
 
-# Frontend (once it lands)
-cd frontend/assignment-ui
+# Frontend
+cd frontend/web
 npm install
 npm run dev
 npm run build
