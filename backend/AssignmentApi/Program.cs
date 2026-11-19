@@ -54,7 +54,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        // Local dev (Next.js on :3000) plus any Vercel deployment of the frontend.
+        policy.SetIsOriginAllowed(origin =>
+            origin == "http://localhost:3000" ||
+            (Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
+             uri.Host.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)))
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -95,14 +99,14 @@ app.Use(async (context, next) =>
     }
 });
 
-if (app.Environment.IsDevelopment())
+// Swagger and database setup run in every environment so the deployed API
+// is usable too: the database is created and demo users are seeded on startup.
+app.UseSwagger();
+app.UseSwaggerUI();
+
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
-    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
     db.Database.EnsureCreated();
     await DbSeeder.Seed(db);
 }
