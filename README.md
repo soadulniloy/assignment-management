@@ -7,7 +7,7 @@ A role-based Assignment & Submission Management System for schools and colleges.
 ![Docker](https://img.shields.io/badge/Docker-PostgreSQL-2496ED)
 ![JWT](https://img.shields.io/badge/Auth-JWT-black)
 
-> **Status:** the backend API and the Next.js frontend are both in this repo. Run them locally (see [Setup](#setup)) — the API at http://localhost:5224, the frontend at http://localhost:3000. The API is not deployed anywhere yet, so a deployed frontend needs a live API URL via `NEXT_PUBLIC_API_URL` before login works.
+> **Status:** the backend API and the Next.js frontend are both in this repo. The frontend is live at https://assignment-management-black.vercel.app and runs in demo mode (built-in mock data in the browser) — login works there with the demo accounts below. The API is not deployed anywhere yet; run it locally (see [Setup](#setup)) — the API at http://localhost:5224, the frontend at http://localhost:3000.
 
 ## Overview
 
@@ -165,6 +165,10 @@ npm run dev
 
 The frontend will be available at http://localhost:3000. Log in with any of the demo accounts above. When the API is deployed, set `NEXT_PUBLIC_API_URL` in `.env.local` (or on Vercel) to the live API URL.
 
+## Demo mode
+
+When `NEXT_PUBLIC_API_URL` is not set, the frontend runs entirely in the browser against built-in mock data (stored in localStorage, seeded with the same demo accounts and sample assignment as the API). The deployed site uses demo mode, so login, dashboards, submissions and grading all work without a backend. Data is per-browser only, and a "Reset demo data" button restores the seed. Set `NEXT_PUBLIC_API_URL` to a live API URL to use the real backend instead.
+
 ## Running Unit Tests
 
 ```bash
@@ -288,7 +292,7 @@ Backend configuration lives in:
 - `backend/AssignmentApi/appsettings.json`
 - `backend/AssignmentApi/appsettings.Development.json`
 
-The frontend provides `frontend/web/.env.example` (copy to `.env.local`, e.g. `NEXT_PUBLIC_API_URL=http://localhost:5224`).
+The frontend provides `frontend/web/.env.example` (copy to `.env.local`, e.g. `NEXT_PUBLIC_API_URL=http://localhost:5224`). Leave the variable unset to run the frontend in demo mode.
 
 Do not commit real production secrets. Production secrets, JWT signing keys, and database credentials should come from secure environment-specific configuration.
 
