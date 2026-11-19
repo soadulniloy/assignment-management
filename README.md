@@ -1,307 +1,184 @@
-Assignment & Submission Management System
+# Assignment & Submission Management System
 
-A role-based Assignment & Submission Management System designed for schools and colleges. The system allows administrators to manage users and courses, teachers to create and grade assignments, and students to view and submit their work securely.
+A role-based Assignment & Submission Management System for schools and colleges. Admins manage users and courses, teachers create and grade assignments, and students view and submit their work securely.
 
-1. Project Overview
+![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791)
+![Docker](https://img.shields.io/badge/Docker-PostgreSQL-2496ED)
+![JWT](https://img.shields.io/badge/Auth-JWT-black)
 
-The system provides separate dashboards and permissions for:
+> **Status:** the backend API is complete and runnable (see [Setup](#setup)). The Next.js frontend is planned — the `frontend/` folder is currently empty in this repo, so the API is used via Swagger for now.
 
-Admin — Manage users, courses, teacher assignments, and student enrollment.
+## Overview
 
-Teacher — Create, publish, and grade assignments for assigned courses.
+The system provides separate dashboards and permissions for three roles:
 
-Student — View published assignments, submit answers, update submissions before deadlines, and view grades and feedback.
+| Role | What they do |
+|---|---|
+| **Admin** | Manage users, courses, teacher assignments, and student enrollment |
+| **Teacher** | Create, publish, and grade assignments for assigned courses |
+| **Student** | View published assignments, submit answers, update submissions before deadlines, and view grades and feedback |
 
 The backend uses JWT authentication and strict role-based authorization, with business rules enforced at the API/service level.
 
-2. Main Features
+## Features
 
-Admin Dashboard
+### Admin
 
-Create Admin, Teacher, and Student accounts.
+- Create Admin, Teacher, and Student accounts
+- Create courses/subjects
+- Assign teachers to courses
+- Enroll students in courses
+- View users and courses
 
-Create courses/subjects.
+### Teacher
 
-Assign teachers to courses.
+- Create assignments for assigned courses
+- Set assignment deadlines and maximum marks
+- Publish assignments
+- View student submissions
+- Grade submissions and provide written feedback
+- Marks are validated against the assignment's maximum marks
+- Teachers can only manage assignments for their assigned courses
 
-Enroll students in courses.
+### Student
 
-View users and courses.
+- View published assignments for enrolled courses
+- Submit text-based answers
+- Update submissions before the deadline
+- Submission updates are blocked after teacher review
+- View marks and teacher feedback after grading
 
-Teacher Dashboard
+### Security & Validation
 
-Create assignments for assigned courses.
+- JWT-based authentication
+- Role-based authorization
+- Protected backend API endpoints
+- Students cannot submit after the deadline
+- Students cannot update submissions after the deadline
+- Students cannot update reviewed submissions
+- Teachers cannot assign marks above the maximum marks
+- Teachers cannot grade submissions outside their assigned courses
 
-Set assignment deadlines and maximum marks.
+## Tech Stack
 
-Publish assignments.
+| Layer | Technology |
+|---|---|
+| Frontend (planned) | Next.js, React, TypeScript (App Router), Tailwind CSS |
+| Backend | ASP.NET Core Web API |
+| Language | C# (.NET 10) |
+| ORM | Entity Framework Core |
+| Database | PostgreSQL 16 |
+| Database Runtime | Docker |
+| Authentication | JWT |
+| API Documentation | Swagger / OpenAPI |
+| Testing | xUnit (EF Core InMemory test database) |
 
-View student submissions.
+## Project Structure
 
-Grade submissions.
-
-Provide written feedback.
-
-Marks are validated against the assignment's maximum marks.
-
-Teachers can only manage assignments for their assigned courses.
-
-Student Dashboard
-
-View published assignments for enrolled courses.
-
-Submit text-based answers.
-
-Update submissions before the deadline.
-
-Submission updates are blocked after teacher review.
-
-View marks and teacher feedback after grading.
-
-Security & Validation
-
-JWT-based authentication.
-
-Role-based authorization.
-
-Protected backend API endpoints.
-
-Students cannot submit after the deadline.
-
-Students cannot update submissions after the deadline.
-
-Students cannot update reviewed submissions.
-
-Teachers cannot assign marks above the maximum marks.
-
-Teachers cannot grade submissions outside their assigned courses.
-
-3. Technology Stack
-
-Layer
-
-Technology
-
-Frontend
-
-Next.js, React, TypeScript
-
-Frontend Architecture
-
-Next.js App Router
-
-Styling
-
-CSS / Tailwind CSS
-
-Backend
-
-ASP.NET Core Web API
-
-Language
-
-C#
-
-ORM
-
-Entity Framework Core
-
-Database
-
-PostgreSQL
-
-Database Runtime
-
-Docker
-
-Authentication
-
-JWT
-
-API Documentation
-
-Swagger / OpenAPI
-
-Testing
-
-xUnit
-
-Test Database
-
-EF Core InMemory
-
-4. Project Structure
-
+```text
 assignment-management/
 ├── backend/
-│   ├── AssignmentApi/
-│   │   ├── Controllers/
-│   │   ├── Data/
-│   │   ├── Models/
-│   │   ├── Services/
+│   ├── AssignmentApi/            # ASP.NET Core Web API (.NET 10)
+│   │   ├── Controllers/          # Auth, Users, Courses, Teacher, Assignments, Submissions
+│   │   ├── Data/                 # AppDbContext, DbSeeder
+│   │   ├── Models/               # Entities, DTOs
+│   │   ├── Services/             # AuthService, AssignmentService
 │   │   └── Program.cs
-│   │
-│   └── AssignmentApi.Tests/
-│
-├── frontend/
-│   └── assignment-ui/
-│       ├── app/
-│       │   ├── admin/
-│       │   ├── teacher/
-│       │   ├── student/
-│       │   ├── login/
-│       │   └── ...
-│       ├── lib/
-│       └── .env.example
-│
-├── docker-compose.yml
+│   └── AssignmentApi.Tests/      # xUnit tests
+├── frontend/                     # Planned — Next.js app (not in the repo yet)
+├── docker-compose.yml            # PostgreSQL 16 on port 5433
 └── README.md
+```
 
-5. Prerequisites
+## Prerequisites
 
-Make sure the following are installed:
+- [.NET 10 SDK](https://dotnet.microsoft.com/download) (the API targets `net10.0`)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for PostgreSQL)
+- Node.js 18+ and npm — only needed once the frontend lands
 
-.NET SDK 8.0 or later
+Verify:
 
-Node.js 18.x or later
-
-npm
-
-Docker Desktop
-
-Verify the installations:
-
+```bash
 dotnet --version
-node --version
-npm --version
 docker --version
+```
 
-6. Setup Instructions
+## Setup
 
-Step 1: Clone the Repository
+### Step 1: Clone the repository
 
-git clone <your-repository-url>
+```bash
+git clone https://github.com/soadulniloy/assignment-management.git
 cd assignment-management
+```
 
-Replace <your-repository-url> with the repository URL.
+### Step 2: Start PostgreSQL
 
-Step 2: Start PostgreSQL
+From the project root (where `docker-compose.yml` is):
 
-Open a terminal in the project root where docker-compose.yml is located:
-
+```bash
 docker compose up -d
-
-PostgreSQL will run inside Docker and be exposed on port 5433.
-
-Check the container:
-
 docker compose ps
+```
 
-To stop the database:
+PostgreSQL runs in Docker, exposed on port **5433** (database `assignment_db`).
 
+To stop it:
+
+```bash
 docker compose down
+```
 
-Step 3: Start the Backend
+### Step 3: Start the backend
 
-Open a new terminal:
+In a new terminal:
 
+```bash
 cd backend/AssignmentApi
 dotnet restore
 dotnet run
+```
 
 The API will be available at:
 
-http://localhost:5000
+- API: **http://localhost:5224**
+- Swagger UI: **http://localhost:5224/swagger**
 
-Swagger UI:
+On startup, EF Core initializes the database (`EnsureCreated`) and the seeder creates the demo users and sample data.
 
-http://localhost:5000/swagger
+### Frontend (planned)
 
-During development, Entity Framework Core initializes the database and the custom database seeder creates the demo users and sample data.
+The Next.js frontend (`frontend/assignment-ui`, App Router, TypeScript, Tailwind CSS) is planned and not in the repo yet. Until then, use the Swagger UI above to try the API.
 
-Step 4: Configure the Frontend
+## Running Unit Tests
 
-Open another terminal:
-
-cd frontend/assignment-ui
-
-Copy the environment template:
-
-copy .env.example .env.local
-
-On macOS/Linux:
-
-cp .env.example .env.local
-
-Configure the backend API URL in .env.local according to the value expected by the frontend.
-
-Example:
-
-NEXT_PUBLIC_API_URL=http://localhost:5000
-
-Step 5: Install Frontend Dependencies
-
-npm install
-
-Step 6: Start the Frontend
-
-npm run dev
-
-The frontend will be available at:
-
-http://localhost:3000
-
-7. Running Unit Tests
-
-Navigate to the test project:
-
+```bash
 cd backend/AssignmentApi.Tests
 dotnet test
+```
 
-The tests use the EF Core InMemory provider and cover important business rules including:
+The tests use the EF Core InMemory provider and cover the important business rules:
 
-Submission deadline validation.
+- Submission deadline validation
+- Submission update permissions
+- Teacher authorization
+- Maximum marks validation
+- Reviewed submission restrictions
 
-Submission update permissions.
+## Demo Credentials
 
-Teacher authorization.
+The database is automatically seeded with demo accounts (local development and evaluation only):
 
-Maximum marks validation.
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@school.com | Admin123! |
+| Teacher | teacher@school.com | Teacher123! |
+| Student | student@school.com | Student123! |
 
-Reviewed submission restrictions.
+## Application Flow
 
-8. Demo Credentials
-
-The database is automatically seeded with demo accounts.
-
-Role
-
-Email
-
-Password
-
-Admin
-
-admin@school.com
-
-Admin123!
-
-Teacher
-
-teacher@school.com
-
-Teacher123!
-
-Student
-
-student@school.com
-
-Student123!
-
-These credentials are intended for local development and evaluation only.
-
-9. Application Flow
-
+```text
                     ┌──────────────────┐
                     │      Login       │
                     └────────┬─────────┘
@@ -317,71 +194,50 @@ These credentials are intended for local development and evaluation only.
         Manage Users    Create/Grade    View/Submit
         Manage Courses   Assignments     Assignments
         Enroll Students  Review Work     View Grades
+```
 
-10. Business Rules
+## Business Rules
 
-Assignment Rules
+### Assignment Rules
 
-Assignments belong to a specific course.
+- Assignments belong to a specific course.
+- Teachers can only create assignments for courses assigned to them.
+- Assignments can be published by teachers.
+- Each assignment has a deadline and maximum marks.
 
-Teachers can only create assignments for courses assigned to them.
+### Submission Rules
 
-Assignments can be published by teachers.
+- Only enrolled students can access the relevant assignments.
+- Students can submit answers before the deadline.
+- Empty submissions are rejected.
+- Students can update submissions before the deadline.
+- Students cannot update submissions after the deadline.
+- Students cannot update submissions after teacher review.
 
-Each assignment has a deadline and maximum marks.
+### Grading Rules
 
-Submission Rules
+- Only the teacher responsible for the course can review submissions.
+- Marks cannot exceed the assignment's maximum marks.
+- Reviewed submissions contain marks and optional feedback.
 
-Only enrolled students can access the relevant assignments.
+## Authentication & Authorization
 
-Students can submit answers before the deadline.
+The application uses JWT tokens for authentication. After a successful login:
 
-Empty submissions are rejected.
+1. The backend validates the user's credentials.
+2. A JWT token is generated.
+3. The frontend (or API client) stores the authenticated session.
+4. Requests to protected API endpoints include the JWT.
+5. Backend authorization verifies the user's role.
+6. Unauthorized users are denied access.
 
-Students can update submissions before the deadline.
+Roles: **Admin**, **Teacher**, **Student** — each role can access only the operations its authorization rules permit.
 
-Students cannot update submissions after the deadline.
+## Database Design
 
-Students cannot update submissions after teacher review.
+Main entities:
 
-Grading Rules
-
-Only the teacher responsible for the course can review submissions.
-
-Marks cannot exceed the assignment's maximum marks.
-
-Reviewed submissions contain marks and optional feedback.
-
-11. Authentication & Authorization
-
-The application uses JWT tokens for authentication.
-
-After successful login:
-
-The backend validates the user's credentials.
-
-A JWT token is generated.
-
-The frontend stores the authenticated session.
-
-Requests to protected API endpoints include the JWT.
-
-Backend authorization verifies the user's role.
-
-Unauthorized users are denied access.
-
-The main roles are:
-
-Admin
-Teacher
-Student
-
-Each role has access only to the operations permitted by the system's authorization rules.
-
-12. Database Design
-
-The main entities include:
-
+```text
 User
  │
  ├── Admin
@@ -399,162 +255,87 @@ User
        │
        ▼
    Submission
+```
 
-A Course represents a class/subject combination, for example:
+A Course represents a class/subject combination, e.g. `Class 10 - Mathematics`, `Class 10 - Physics`, `Class 9 - English`. A course is assigned to one teacher and can contain multiple enrolled students.
 
-Class 10 - Mathematics
-Class 10 - Physics
-Class 9 - English
+## Assumptions & Design Decisions
 
-A course is assigned to one teacher and can contain multiple enrolled students.
+- **Course structure:** a Course is a class + subject combination (e.g. Class 10 - Mathematics). This keeps the teacher/student/course/assignment relationships simple.
+- **Submission format:** for the MVP, student submissions are text-only. File uploads and attachments are not implemented.
+- **Teacher assignment:** each course is assigned to exactly one teacher.
+- **Submission updates:** students may update a submission before the deadline as long as the teacher has not reviewed it. Once the status becomes Reviewed, it is locked.
+- **Database initialization:** the dev environment uses EF Core `EnsureCreated()` + a custom database seeder + PostgreSQL in Docker, so the database and demo data are ready without manual migration commands.
 
-13. Assumptions & Design Decisions
+## Environment Configuration
 
-Course Structure
+Backend configuration lives in:
 
-A Course represents a combination of class and subject, such as:
+- `backend/AssignmentApi/appsettings.json`
+- `backend/AssignmentApi/appsettings.Development.json`
 
-Class 10 - Mathematics
+The frontend will provide `frontend/assignment-ui/.env.example` (copy to `.env.local`, e.g. `NEXT_PUBLIC_API_URL=http://localhost:5224`) once it lands.
 
-This simplifies the relationship between teachers, students, courses, and assignments.
+Do not commit real production secrets. Production secrets, JWT signing keys, and database credentials should come from secure environment-specific configuration.
 
-Submission Format
+## API Documentation
 
-For the MVP, student submissions are text-only.
+Once the backend is running, Swagger/OpenAPI docs are at **http://localhost:5224/swagger** — use them to inspect and test the endpoints during development.
 
-File uploads and attachments are not implemented.
+## Known Limitations
 
-Teacher Assignment
+- No file attachment support for assignment submissions
+- No pagination for large data tables
+- No advanced filtering or search
+- No email or push notifications
+- Text-only assignment submissions
+- Basic authentication/session handling on the frontend
+- The application is an MVP and is not yet configured for production deployment
 
-Each course is assigned to exactly one teacher.
+## Future Improvements
 
-Submission Updates
+- File and document submission support
+- Assignment search and filtering
+- Pagination and server-side data loading
+- Email notifications
+- Push notifications
+- Assignment analytics
+- Student performance dashboards
+- Teacher grading history
+- Password reset functionality
+- Refresh tokens
+- Production database migrations
+- Audit logging
+- Improved frontend component architecture
+- Dark mode
+- Mobile-focused UI improvements
 
-Students may update a submission before the deadline as long as the teacher has not reviewed it.
+## Development Commands
 
-Once the submission status becomes Reviewed, it becomes locked.
-
-Database Initialization
-
-The development environment uses:
-
-EF Core EnsureCreated()
-
-A custom database seeder
-
-PostgreSQL running through Docker
-
-This allows the application to initialize the database and demo data without requiring manual migration commands.
-
-14. Environment Configuration
-
-The frontend provides:
-
-frontend/assignment-ui/.env.example
-
-Create a local environment file:
-
-frontend/assignment-ui/.env.local
-
-Do not commit real production secrets to the repository.
-
-Backend configuration is managed through:
-
-backend/AssignmentApi/appsettings.json
-
-Production secrets, JWT signing keys, and database credentials should be supplied through secure environment-specific configuration.
-
-15. API Documentation
-
-Once the backend is running, Swagger/OpenAPI documentation is available at:
-
-http://localhost:5000/swagger
-
-Swagger can be used to inspect and test the available API endpoints during development.
-
-16. Known Limitations
-
-No file attachment support for assignment submissions.
-
-No pagination for large data tables.
-
-No advanced filtering or search.
-
-No email notifications.
-
-No push notifications.
-
-Text-only assignment submissions.
-
-Basic authentication/session handling on the frontend.
-
-The application is intended as an MVP and is not yet configured for production deployment.
-
-17. Future Improvements
-
-Potential future enhancements include:
-
-File and document submission support.
-
-Assignment search and filtering.
-
-Pagination and server-side data loading.
-
-Email notifications.
-
-Push notifications.
-
-Assignment analytics.
-
-Student performance dashboards.
-
-Teacher grading history.
-
-Password reset functionality.
-
-Refresh tokens.
-
-Production database migrations.
-
-Audit logging.
-
-Improved frontend component architecture.
-
-Dark mode.
-
-Mobile-focused UI improvements.
-
-18. Development Commands
-
-Backend
-
+```bash
+# Backend
 cd backend/AssignmentApi
 dotnet restore
 dotnet build
 dotnet run
 
-Backend Tests
-
+# Backend tests
 cd backend/AssignmentApi.Tests
 dotnet test
 
-Frontend
-
-cd frontend/assignment-ui
-npm install
-npm run dev
-
-Production Frontend Build
-
-npm run build
-npm start
-
-Docker Database
-
+# Docker database
 docker compose up -d
 docker compose ps
 docker compose down
 
-19. License
+# Frontend (once it lands)
+cd frontend/assignment-ui
+npm install
+npm run dev
+npm run build
+npm start
+```
+
+## License
 
 This project is developed for educational, demonstration, and evaluation purposes.
