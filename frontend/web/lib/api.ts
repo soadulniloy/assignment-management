@@ -5,9 +5,18 @@ import type {
   SubmissionDto,
   UserDto,
 } from "./types";
+import * as demo from "./demo";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5224";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5224";
+
+/**
+ * Demo mode is on when no API URL is configured (e.g. the Vercel
+ * deployment). In demo mode every call is served from a mock database in
+ * the browser's localStorage (lib/demo.ts) instead of the real backend.
+ * Local development sets NEXT_PUBLIC_API_URL in .env.local and keeps using
+ * the real API.
+ */
+export const DEMO_MODE = !process.env.NEXT_PUBLIC_API_URL;
 
 export class ApiError extends Error {
   status: number;
@@ -68,40 +77,58 @@ const del = <T>(path: string) => request<T>(path, { method: "DELETE" });
 export const api = {
   // Auth
   login: (email: string, password: string) =>
-    post<LoginResponse>("/api/auth/login", { email, password }),
+    DEMO_MODE
+      ? demo.login(email, password)
+      : post<LoginResponse>("/api/auth/login", { email, password }),
 
   // Admin — users
-  getUsers: () => get<UserDto[]>("/api/users"),
+  getUsers: () => (DEMO_MODE ? demo.getUsers() : get<UserDto[]>("/api/users")),
   createUser: (body: {
     name: string;
     email: string;
     password: string;
     role: string;
-  }) => post<UserDto>("/api/users", body),
-  deleteUser: (id: number) => del<void>(`/api/users/${id}`),
+  }) => (DEMO_MODE ? demo.createUser(body) : post<UserDto>("/api/users", body)),
+  deleteUser: (id: number) =>
+    DEMO_MODE ? demo.deleteUser(id) : del<void>(`/api/users/${id}`),
 
   // Admin — courses
-  getCourses: () => get<CourseDto[]>("/api/courses"),
+  getCourses: () =>
+    DEMO_MODE ? demo.getCourses() : get<CourseDto[]>("/api/courses"),
   createCourse: (body: {
     name: string;
     subject: string;
     teacherId?: number | null;
-  }) => post<CourseDto>("/api/courses", body),
+  }) =>
+    DEMO_MODE
+      ? demo.createCourse(body)
+      : post<CourseDto>("/api/courses", body),
   assignTeacher: (courseId: number, teacherId: number) =>
-    post<{ message: string }>(`/api/courses/${courseId}/assign-teacher`, {
-      teacherId,
-    }),
+    DEMO_MODE
+      ? demo.assignTeacher(courseId, teacherId)
+      : post<{ message: string }>(`/api/courses/${courseId}/assign-teacher`, {
+          teacherId,
+        }),
   enrollStudent: (courseId: number, studentId: number) =>
-    post<{ message: string }>(`/api/courses/${courseId}/enroll-student`, {
-      studentId,
-    }),
-  deleteCourse: (id: number) => del<void>(`/api/courses/${id}`),
+    DEMO_MODE
+      ? demo.enrollStudent(courseId, studentId)
+      : post<{ message: string }>(`/api/courses/${courseId}/enroll-student`, {
+          studentId,
+        }),
+  deleteCourse: (id: number) =>
+    DEMO_MODE ? demo.deleteCourse(id) : del<void>(`/api/courses/${id}`),
 
   // Teacher
-  getTeacherCourses: () => get<CourseDto[]>("/api/teacher/courses"),
+  getTeacherCourses: () =>
+    DEMO_MODE
+      ? demo.getTeacherCourses()
+      : get<CourseDto[]>("/api/teacher/courses"),
 
   // Assignments (teacher sees own, admin sees all)
-  getAssignments: () => get<AssignmentDto[]>("/api/assignments"),
+  getAssignments: () =>
+    DEMO_MODE
+      ? demo.getAssignments()
+      : get<AssignmentDto[]>("/api/assignments"),
   createAssignment: (body: {
     title: string;
     description: string;
@@ -109,7 +136,10 @@ export const api = {
     maxMarks: number;
     courseId: number;
     isPublished: boolean;
-  }) => post<AssignmentDto>("/api/assignments", body),
+  }) =>
+    DEMO_MODE
+      ? demo.createAssignment(body)
+      : post<AssignmentDto>("/api/assignments", body),
   updateAssignment: (
     id: number,
     body: {
@@ -119,24 +149,46 @@ export const api = {
       maxMarks: number;
       isPublished: boolean;
     }
-  ) => put<AssignmentDto>(`/api/assignments/${id}`, body),
-  deleteAssignment: (id: number) => del<void>(`/api/assignments/${id}`),
+  ) =>
+    DEMO_MODE
+      ? demo.updateAssignment(id, body)
+      : put<AssignmentDto>(`/api/assignments/${id}`, body),
+  deleteAssignment: (id: number) =>
+    DEMO_MODE
+      ? demo.deleteAssignment(id)
+      : del<void>(`/api/assignments/${id}`),
   publishAssignment: (id: number) =>
-    post<AssignmentDto>(`/api/assignments/${id}/publish`, {}),
+    DEMO_MODE
+      ? demo.publishAssignment(id)
+      : post<AssignmentDto>(`/api/assignments/${id}/publish`, {}),
   getAssignmentSubmissions: (id: number) =>
-    get<SubmissionDto[]>(`/api/assignments/${id}/submissions`),
+    DEMO_MODE
+      ? demo.getAssignmentSubmissions(id)
+      : get<SubmissionDto[]>(`/api/assignments/${id}/submissions`),
 
   // Review (teacher / admin)
   reviewSubmission: (id: number, body: { marks: number; feedback?: string | null }) =>
-    post<SubmissionDto>(`/api/submissions/${id}/review`, body),
+    DEMO_MODE
+      ? demo.reviewSubmission(id, body)
+      : post<SubmissionDto>(`/api/submissions/${id}/review`, body),
 
   // Student
-  getMyAssignments: () => get<AssignmentDto[]>("/api/my/assignments"),
-  getMySubmissions: () => get<SubmissionDto[]>("/api/my/submissions"),
+  getMyAssignments: () =>
+    DEMO_MODE
+      ? demo.getMyAssignments()
+      : get<AssignmentDto[]>("/api/my/assignments"),
+  getMySubmissions: () =>
+    DEMO_MODE
+      ? demo.getMySubmissions()
+      : get<SubmissionDto[]>("/api/my/submissions"),
   submitAssignment: (assignmentId: number, answerText: string) =>
-    post<SubmissionDto>(`/api/my/assignments/${assignmentId}/submit`, {
-      answerText,
-    }),
+    DEMO_MODE
+      ? demo.submitAssignment(assignmentId, answerText)
+      : post<SubmissionDto>(`/api/my/assignments/${assignmentId}/submit`, {
+          answerText,
+        }),
   updateSubmission: (id: number, answerText: string) =>
-    put<SubmissionDto>(`/api/my/submissions/${id}`, { answerText }),
+    DEMO_MODE
+      ? demo.updateSubmission(id, answerText)
+      : put<SubmissionDto>(`/api/my/submissions/${id}`, { answerText }),
 };
