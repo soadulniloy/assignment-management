@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: assignment-api
+    env: docker
+    plan: free
+    dockerContext: ./backend/AssignmentApi
+    dockerfilePath: ./backend/AssignmentApi/Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__Default
+        fromDatabase:
+          name: assignment-db
+          property: connectionString
+      - key: Jwt__Key
+        generateValue: true
+      - key: Jwt__Issuer
+        value: AssignmentApi
+      - key: Jwt__Audience
+        value: AssignmentUi
+    healthCheckPath: /swagger/index.html
+
+databases:
+  - name: assignment-db
+    plan: free
