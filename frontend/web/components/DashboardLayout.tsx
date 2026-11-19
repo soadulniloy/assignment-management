@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { logout } from "@/lib/auth";
 import type { Role, Session } from "@/lib/types";
+import { DemoBadge, ResetDemoButton } from "@/components/DemoMode";
 
 const NAV: Record<Role, { href: string; label: string }[]> = {
   Admin: [{ href: "/admin", label: "Admin Dashboard" }],
@@ -49,6 +50,8 @@ export default function DashboardLayout({
             </nav>
           </div>
           <div className="flex items-center gap-3">
+            <DemoBadge />
+            <ResetDemoButton />
             <span className="text-sm text-slate-600">
               {session.name}{" "}
               <span className="text-slate-400">({session.role})</span>
